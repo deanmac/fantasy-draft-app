@@ -37,6 +37,7 @@ const PORT = process.env.PORT || 8080;
 
 // --- Centralized Draft Configuration ---
 const DRAFT_CONFIG = {
+    title: "12 Angry Men",
     teams: 12,
     rounds: 17,
 };
