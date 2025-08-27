@@ -55,7 +55,7 @@ if (process.env.NODE_ENV === 'production') {
 
     // For any request that doesn't match an API route, send back React's index.html file.
     // This is the key for single-page applications to work with client-side routing.
-    app.get('/{*any}', (req, res) => {
+    app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
     });
 }
@@ -63,7 +63,8 @@ if (process.env.NODE_ENV === 'production') {
 // --- Socket.IO Initialization ---
 initializeSockets(io);
 
-// The config object passed to initializeDatabase needs TEAMS and ROUNDS in uppercase
+// The config object passed to initializeDatabase needs TEAMS and ROUNDS in uppercase,
+// so we derive it from the centralized DRAFT_CONFIG.
 const dbConfig = {
     TEAMS: DRAFT_CONFIG.teams,
     ROUNDS: DRAFT_CONFIG.rounds,
