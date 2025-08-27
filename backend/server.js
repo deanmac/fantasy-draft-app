@@ -31,6 +31,14 @@ const PORT = process.env.PORT || 3001;
 app.use('/api/auth', authRoutes);
 app.use('/api/players', playerRoutes);
 
+// A new endpoint to provide configuration to the frontend
+app.get('/api/config', (req, res) => {
+    res.json({
+        teams: 12,
+        rounds: 17,
+    });
+});
+
 // --- Serve Frontend for Production ---
 if (process.env.NODE_ENV === 'production') {
     // Serve the static files from the React app's build directory
