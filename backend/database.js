@@ -172,6 +172,8 @@ async function initializeDatabase(config) {
 
   } catch (error) {
     console.error('Unable to initialize the database:', error);
+    // Re-throw the error so the calling process knows initialization failed.
+    throw error;
   }
 }
 

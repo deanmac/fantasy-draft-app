@@ -13,22 +13,24 @@ const initializeSockets = require('./socket');
 
 // --- Express App Setup ---
 const app = express();
-app.use(express.json()); // Middleware to parse JSON bodies
-app.use(cors()); // Allow requests from our React frontend
-
-// --- HTTP Server and Socket.IO Setup ---
-const server = http.createServer(app);
 
 const allowedOrigins = ["http://localhost:3000"];
 if (process.env.CLIENT_URL) {
     allowedOrigins.push(process.env.CLIENT_URL);
 }
 
+const corsOptions = {
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+};
+
+app.use(express.json()); // Middleware to parse JSON bodies
+app.use(cors(corsOptions)); // Use configured CORS for all Express routes
+
+// --- HTTP Server and Socket.IO Setup ---
+const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: allowedOrigins,
-        methods: ["GET", "POST"]
-    }
+    cors: corsOptions // Reuse the same CORS options for Socket.IO
 });
 
 const PORT = process.env.PORT || 8080;
@@ -70,8 +72,13 @@ const dbConfig = {
     ROUNDS: DRAFT_CONFIG.rounds,
 };
 
-initializeDatabase(dbConfig).then(() => {
-    server.listen(PORT, () => {
-        console.log(`Server is listening on http://localhost:${PORT}`);
+initializeDatabase(dbConfig)
+    .then(() => {
+        server.listen(PORT, () => {
+            console.log(`Server is listening on port ${PORT}`);
+        });
+    })
+    .catch(error => {
+        console.error('Failed to start server due to database initialization error:', error);
+        process.exit(1);
     });
-});
