@@ -18,14 +18,26 @@ app.use(cors()); // Allow requests from our React frontend
 
 // --- HTTP Server and Socket.IO Setup ---
 const server = http.createServer(app);
+
+const allowedOrigins = ["http://localhost:3000"];
+if (process.env.CLIENT_URL) {
+    allowedOrigins.push(process.env.CLIENT_URL);
+}
+
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:3000", // Allow client to connect
+        origin: allowedOrigins,
         methods: ["GET", "POST"]
     }
 });
 
 const PORT = process.env.PORT || 3001;
+
+// --- Centralized Draft Configuration ---
+const DRAFT_CONFIG = {
+    teams: 12,
+    rounds: 17,
+};
 
 // --- API Routes ---
 app.use('/api/auth', authRoutes);
@@ -33,10 +45,7 @@ app.use('/api/players', playerRoutes);
 
 // A new endpoint to provide configuration to the frontend
 app.get('/api/config', (req, res) => {
-    res.json({
-        teams: 12,
-        rounds: 17,
-    });
+    res.json(DRAFT_CONFIG);
 });
 
 // --- Serve Frontend for Production ---
@@ -54,13 +63,13 @@ if (process.env.NODE_ENV === 'production') {
 // --- Socket.IO Initialization ---
 initializeSockets(io);
 
-// Initialize and seed the database on server start, then listen for connections
-const DRAFT_CONFIG = {
-    TEAMS: 12,
-    ROUNDS: 17,
+// The config object passed to initializeDatabase needs TEAMS and ROUNDS in uppercase
+const dbConfig = {
+    TEAMS: DRAFT_CONFIG.teams,
+    ROUNDS: DRAFT_CONFIG.rounds,
 };
 
-initializeDatabase(DRAFT_CONFIG).then(() => {
+initializeDatabase(dbConfig).then(() => {
     server.listen(PORT, () => {
         console.log(`Server is listening on http://localhost:${PORT}`);
     });
