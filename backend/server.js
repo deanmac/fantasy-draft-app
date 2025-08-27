@@ -55,7 +55,7 @@ if (process.env.NODE_ENV === 'production') {
 
     // For any request that doesn't match an API route, send back React's index.html file.
     // This is the key for single-page applications to work with client-side routing.
-    app.get('*', (req, res) => {
+    app.get('/{*any}', (req, res) => {
         res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
     });
 }
