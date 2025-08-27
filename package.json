@@ -6,18 +6,5 @@
     "build:frontend": "npm install --prefix frontend && npm run build --prefix frontend",
     "install:backend": "npm install --prefix backend",
     "postinstall": "npm run install:backend && npm run build:frontend"
-  },
-  "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "cors": "^2.8.5",
-    "csv-parser": "^3.2.0",
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3",
-    "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7",
-    "socket.io": "^4.8.1"
   }
 }
-
