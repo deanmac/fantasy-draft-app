@@ -11,19 +11,16 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   port: process.env.DB_PORT,
   dialect: 'postgres',
   logging: false, // Set to console.log to see raw SQL queries
-});
-
-// Conditionally add SSL options for production environments like DigitalOcean
-if (process.env.NODE_ENV === 'production') {
-  sequelize.options.dialectOptions = {
+  dialectOptions: {
     ssl: {
-      require: true,
-      rejectUnauthorized: true,
-      // This file must be in your git repository for DigitalOcean to find it.
+      require: true, // This will help you. But if you want to connect without SSL
+      // It's more secure to verify the certificate
+      rejectUnauthorized: true, 
+      // Provide the path to the CA certificate you downloaded from DigitalOcean
       ca: fs.readFileSync(path.join(__dirname, 'ca-certificate.crt')).toString(),
-    },
-  };
-}
+    }
+  }
+});
 
 // --- Model Definitions ---
 
