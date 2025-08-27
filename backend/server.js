@@ -4,6 +4,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
 const cors = require('cors');
+const path = require('path');
 
 const { initializeDatabase } = require('./database');
 const authRoutes = require('./routes/auth');
@@ -29,6 +30,18 @@ const PORT = process.env.PORT || 3001;
 // --- API Routes ---
 app.use('/api/auth', authRoutes);
 app.use('/api/players', playerRoutes);
+
+// --- Serve Frontend for Production ---
+if (process.env.NODE_ENV === 'production') {
+    // Serve the static files from the React app's build directory
+    app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+    // For any request that doesn't match an API route, send back React's index.html file.
+    // This is the key for single-page applications to work with client-side routing.
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+    });
+}
 
 // --- Socket.IO Initialization ---
 initializeSockets(io);

@@ -1,4 +1,12 @@
 {
+  "name": "fantasy-draft-app-root",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node backend/server.js",
+    "build:frontend": "npm install --prefix frontend && npm run build --prefix frontend",
+    "install:backend": "npm install --prefix backend",
+    "postinstall": "npm run install:backend && npm run build:frontend"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
