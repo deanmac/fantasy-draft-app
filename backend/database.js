@@ -145,6 +145,9 @@ async function seedPlayersFromCSV() {
 
 async function initializeDatabase(config) {
   try {
+    // Add logging to see if the connection attempt starts
+    console.log('Attempting to connect to the database and sync models...');
+
     // Sync all models with the database. `force: false` will not drop tables if they exist.
     await sequelize.sync({ force: false });
     console.log('Database synced successfully.');
