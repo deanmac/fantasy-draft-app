@@ -12,15 +12,15 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   dialect: 'postgres',
   logging: false, // Set to console.log to see raw SQL queries
   dialectOptions: {
-    // Add a connection timeout to fail fast if the database is unreachable
-    connectTimeout: 5000 // 5 seconds
+    // Add a connection timeout (in milliseconds) to fail fast if the database is unreachable
+    connectionTimeoutMillis: 5000 // 5 seconds
   }
 });
 
 // Conditionally add SSL options for production environments like DigitalOcean
 if (process.env.NODE_ENV === 'production') {
   sequelize.options.dialectOptions = {
-    ...sequelize.options.dialectOptions, // Keep existing options like connectTimeout
+    ...sequelize.options.dialectOptions, // Keep existing options like connectionTimeoutMillis
     ssl: {
       require: true,
       rejectUnauthorized: true,
