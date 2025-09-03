@@ -4,35 +4,32 @@ const path = require('path');
 const csv = require('csv-parser');
 const bcrypt = require('bcryptjs');
 
-// TODO: Replace with your actual database connection details.
-// It's highly recommended to use environment variables for these credentials.
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  dialect: 'postgres',
-  logging: 'console.log', // Set to console.log to see raw SQL queries
-  dialectOptions: {
-    // Add a connection timeout (in milliseconds) to fail fast if the database is unreachable
-    connectionTimeoutMillis: 5000, // 5 seconds
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  }
-});
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Conditionally add SSL options for production environments like DigitalOcean
-if (process.env.NODE_ENV === 'production') {
-  sequelize.options.dialectOptions = {
-    ...sequelize.options.dialectOptions, // Keep existing options like connectionTimeoutMillis
-    ssl: {
-      require: true,
-      rejectUnauthorized: true,
-      // This file must be in your git repository for DigitalOcean to find it.
-      ca: fs.readFileSync(path.join(__dirname, 'ca-certificate.crt')).toString(),
-    },
-  };
+const connectionOptions = {
+    dialect: 'postgres',
+    logging: isProduction ? false : console.log, // Log SQL in dev, not in prod
+    dialectOptions: {
+        // Add a connection timeout (in milliseconds) to fail fast if the database is unreachable
+        connectionTimeoutMillis: 5000, // 5 seconds
+    }
+};
+
+// For production (like DigitalOcean), use the DATABASE_URL and the provided CA certificate.
+if (isProduction && process.env.DATABASE_URL) {
+    connectionOptions.dialectOptions.ssl = {
+        require: true,
+        rejectUnauthorized: true, // This is crucial for security
+        // DigitalOcean App Platform provides the CA cert in an env var.
+        ca: process.env.CA_CERT,
+    };
 }
+
+// Use the DATABASE_URL if available (common on hosting platforms),
+// otherwise, fall back to individual environment variables for local development.
+const sequelize = process.env.DATABASE_URL
+    ? new Sequelize(process.env.DATABASE_URL, connectionOptions)
+    : new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, { ...connectionOptions, host: process.env.DB_HOST, port: process.env.DB_PORT });
 
 // --- Model Definitions ---
 
