@@ -10,7 +10,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   dialect: 'postgres',
-  logging: false, // Set to console.log to see raw SQL queries
+  logging: 'console.log', // Set to console.log to see raw SQL queries
   dialectOptions: {
     // Add a connection timeout (in milliseconds) to fail fast if the database is unreachable
     connectionTimeoutMillis: 5000 // 5 seconds
