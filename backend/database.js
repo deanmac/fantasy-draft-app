@@ -13,7 +13,11 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   logging: 'console.log', // Set to console.log to see raw SQL queries
   dialectOptions: {
     // Add a connection timeout (in milliseconds) to fail fast if the database is unreachable
-    connectionTimeoutMillis: 5000 // 5 seconds
+    connectionTimeoutMillis: 5000, // 5 seconds
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
   }
 });
 
