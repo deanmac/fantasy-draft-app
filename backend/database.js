@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const connectionOptions = {
+let connectionOptions = {
     dialect: 'postgres',
     logging: isProduction ? false : console.log, // Log SQL in dev, not in prod
     dialectOptions: {
@@ -24,6 +24,8 @@ if (isProduction) {
       ca: process.env.CA_CERT,
     };
 }
+
+connectionOptions.dialectOptions.connectionTimeoutMillis = 15000;
 
 // Always use individual environment variables. DigitalOcean App Platform provides these
 // for the private connection, which is more reliable than the DATABASE_URL.
