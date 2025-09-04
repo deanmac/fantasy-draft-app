@@ -1,0 +1,48 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+databases:
+- cluster_name: db-postgresql-tor1-automac1
+  db_name: fantasy_draft
+  db_user: doadmin
+  engine: PG
+  name: db-postgresql-tor1-automac1
+  production: true
+  version: "17"
+features:
+- buildpack-stack=ubuntu-22
+ingress:
+  rules:
+  - component:
+      name: fantasy-draft-app-backend
+    match:
+      authority:
+        exact: ""
+      path:
+        prefix: /
+name: draftapp
+region: tor
+services:
+- environment_slug: node-js
+  envs:
+  - key: CLIENT_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${APP_URL}
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: JWT_SECRET
+    scope: RUN_AND_BUILD_TIME
+    value: HKcygHARrR2bN2phsC5YvnrrURn7WNVLj4bNeDqC6J9j9s4BUB
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${db-postgresql-tor1-automac1.DATABASE_URL}
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: deanmac/fantasy-draft-app
+  http_port: 8080
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  name: fantasy-draft-app-backend
+  source_dir: backend

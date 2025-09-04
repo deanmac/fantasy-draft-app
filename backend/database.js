@@ -6,30 +6,33 @@ const bcrypt = require('bcryptjs');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-let connectionOptions = {
+let sequelize;
+
+if (isProduction && process.env.DATABASE_URL) {
+  // In production, use the DATABASE_URL provided by the App Platform.
+  // It includes all necessary connection details, including SSL.
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    logging: isProduction ? false : console.log, // Log SQL in dev, not in prod
+    logging: false,
     dialectOptions: {
-        // Add a connection timeout (in milliseconds) to fail fast if the database is unreachable
-        connectionTimeoutMillis: 5000, // 5 seconds
-    }
-};
-
-// For production (like DigitalOcean), add SSL options.
-// DigitalOcean provides the CA certificate in the CA_CERT env var.
-if (isProduction) {
-    connectionOptions.dialectOptions.ssl = {
-      require: true,
-      rejectUnauthorized: true,
-      ca: process.env.CA_CERT,
-    };
+      ssl: {
+        require: true,
+        // DigitalOcean managed databases require this setting
+        rejectUnauthorized: false,
+      },
+      // Add a connection timeout (in milliseconds)
+      connectionTimeoutMillis: 15000,
+    },
+  });
+} else {
+  // For local development, use individual environment variables from a .env file.
+  sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'postgres',
+    logging: console.log,
+  });
 }
-
-connectionOptions.dialectOptions.connectionTimeoutMillis = 15000;
-
-// Always use individual environment variables. DigitalOcean App Platform provides these
-// for the private connection, which is more reliable than the DATABASE_URL.
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, { ...connectionOptions, host: process.env.DB_HOST, port: process.env.DB_PORT });
 
 // --- Model Definitions ---
 
