@@ -37,6 +37,8 @@ services:
   - key: DATABASE_URL
     scope: RUN_TIME
     value: ${db-postgresql-tor1-automac1.DATABASE_URL}
+  - key: CA_CERT
+    scope: RUN_TIME
   github:
     branch: main
     deploy_on_push: true

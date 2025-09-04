@@ -17,8 +17,9 @@ if (isProduction && process.env.DATABASE_URL) {
     dialectOptions: {
       ssl: {
         require: true,
-        // DigitalOcean managed databases require this setting
-        rejectUnauthorized: false,
+        // This is the secure way to connect to DO's managed databases
+        rejectUnauthorized: true,
+        ca: process.env.CA_CERT,
       },
       // Add a connection timeout (in milliseconds)
       connectionTimeoutMillis: 15000,
