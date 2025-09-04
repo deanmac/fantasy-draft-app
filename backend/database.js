@@ -25,11 +25,11 @@ if (isProduction && process.env.DATABASE_URL) {
     };
 }
 
-// Use the DATABASE_URL if available (common on hosting platforms),
-// otherwise, fall back to individual environment variables for local development.
-const sequelize = process.env.DATABASE_URL
-    ? new Sequelize(process.env.DATABASE_URL, connectionOptions)
-    : new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, { ...connectionOptions, host: process.env.DB_HOST, port: process.env.DB_PORT });
+// For production, use the individual DB env vars that DigitalOcean provides.
+// This ensures the `dialectOptions.ssl` object (with the CA cert) is correctly used.
+// For local dev, we also use individual env vars from a .env file.
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, { ...connectionOptions, host: process.env.DB_HOST, port: process.env.DB_PORT });
+
 
 // --- Model Definitions ---
 
