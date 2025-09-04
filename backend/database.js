@@ -15,21 +15,22 @@ const connectionOptions = {
     }
 };
 
-// For production (like DigitalOcean), use the DATABASE_URL and the provided CA certificate.
+let sequelize;
+
 if (isProduction && process.env.DATABASE_URL) {
+    // For production (like DigitalOcean), use the DATABASE_URL.
+    // It's crucial to add the ssl options to the connection options.
+    // Sequelize will merge these with the details from the connection string.
     connectionOptions.dialectOptions.ssl = {
-        require: true,
-        rejectUnauthorized: true, // This is crucial for security
-        // DigitalOcean App Platform provides the CA cert in an env var.
-        ca: process.env.CA_CERT,
+      require: true,
+      rejectUnauthorized: true,
+      ca: process.env.CA_CERT,
     };
+    sequelize = new Sequelize(process.env.DATABASE_URL, connectionOptions);
+} else {
+    // For local development, use individual environment variables from a .env file.
+    sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, { ...connectionOptions, host: process.env.DB_HOST, port: process.env.DB_PORT });
 }
-
-// For production, use the individual DB env vars that DigitalOcean provides.
-// This ensures the `dialectOptions.ssl` object (with the CA cert) is correctly used.
-// For local dev, we also use individual env vars from a .env file.
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, { ...connectionOptions, host: process.env.DB_HOST, port: process.env.DB_PORT });
-
 
 // --- Model Definitions ---
 
