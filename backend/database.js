@@ -8,22 +8,28 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 let sequelize;
 
-if (isProduction && process.env.DATABASE_URL) {
-  // In production, use the DATABASE_URL provided by the App Platform.
-  // It includes all necessary connection details, including SSL.
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
+if (isProduction) {
+  let connectionUrl = process.env.DATABASE_URL;
+  const dialectOptions = {
+    ssl: {
+      require: true,
+      // This is the most secure setting, ensuring we verify the server's certificate.
+      rejectUnauthorized: true,
+    },
+    // Add a connection timeout (in milliseconds)
+    connectionTimeoutMillis: 15000,
+  };
+
+  // DigitalOcean App Platform provides the CA certificate content directly.
+  // We need to write it to a file for the `pg` driver to use it.
+  if (process.env.CA_CERT) {
+    dialectOptions.ssl.ca = process.env.CA_CERT;
+  }
+
+  sequelize = new Sequelize(connectionUrl, {
     dialect: 'postgres',
     logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        // This is the secure way to connect to DO's managed databases
-        rejectUnauthorized: true,
-        ca: process.env.CA_CERT,
-      },
-      // Add a connection timeout (in milliseconds)
-      connectionTimeoutMillis: 15000,
-    },
+    dialectOptions,
   });
 } else {
   // For local development, use individual environment variables from a .env file.
