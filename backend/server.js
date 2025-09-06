@@ -42,6 +42,18 @@ const DRAFT_CONFIG = {
     rounds: 17,
 };
 
+initializeDatabase(dbConfig)
+    .then(() => {
+        server.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    })
+    .catch(error => {
+        console.error('Failed to initialize database:', error);
+        process.exit(1);
+    });
+
+
 // --- API Routes ---
 app.use('/api/auth', authRoutes);
 app.use('/api/players', playerRoutes);
@@ -73,13 +85,3 @@ const dbConfig = {
     ROUNDS: DRAFT_CONFIG.rounds,
 };
 
-initializeDatabase(dbConfig)
-    .then(() => {
-        server.listen(PORT, () => {
-            console.log(`Server is listening on port ${PORT}`);
-        });
-    })
-    .catch(error => {
-        console.error('Failed to start server due to database initialization error:', error);
-        process.exit(1);
-    });
