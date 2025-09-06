@@ -42,17 +42,11 @@ const DRAFT_CONFIG = {
     rounds: 17,
 };
 
-initializeDatabase(dbConfig)
-    .then(() => {
-        server.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
-        });
-    })
-    .catch(error => {
-        console.error('Failed to initialize database:', error);
-        process.exit(1);
-    });
-
+// The config object passed to initializeDatabase needs TEAMS and ROUNDS in uppercase,
+const dbConfig = {
+    TEAMS: DRAFT_CONFIG.teams,
+    ROUNDS: DRAFT_CONFIG.rounds,
+};
 
 // --- API Routes ---
 app.use('/api/auth', authRoutes);
@@ -78,10 +72,14 @@ if (process.env.NODE_ENV === 'production') {
 // --- Socket.IO Initialization ---
 initializeSockets(io);
 
-// The config object passed to initializeDatabase needs TEAMS and ROUNDS in uppercase,
-// so we derive it from the centralized DRAFT_CONFIG.
-const dbConfig = {
-    TEAMS: DRAFT_CONFIG.teams,
-    ROUNDS: DRAFT_CONFIG.rounds,
-};
-
+// Initialize database and start server
+initializeDatabase(dbConfig)
+    .then(() => {
+        server.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    })
+    .catch(error => {
+        console.error('Failed to initialize database:', error);
+        process.exit(1);
+    });
