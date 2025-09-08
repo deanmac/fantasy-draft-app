@@ -21,7 +21,8 @@ if (isProduction) {
   };
 }
 
-sequelize = new Sequelize(process.env.DATABASE_URL || {
+// First, create a config object
+const dbConfig = {
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -36,7 +37,10 @@ sequelize = new Sequelize(process.env.DATABASE_URL || {
       ca: process.env.CA_CERT
     }
   } : {}
-});
+};
+
+// Then initialize Sequelize
+sequelize = new Sequelize(dbConfig);
 
 // In database.js, after creating the sequelize instance
 async function testConnection() {
