@@ -5,6 +5,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const { initializeDatabase } = require('./database');
 const authRoutes = require('./routes/auth');
@@ -57,15 +58,20 @@ app.get('/api/config', (req, res) => {
     res.json(DRAFT_CONFIG);
 });
 
-// --- Serve Frontend for Production ---
-if (process.env.NODE_ENV === 'production') {
-    // Serve the static files from the React app's build directory
-    app.use(express.static(path.join(__dirname, '../frontend/build')));
+// --- Serve Frontend Build When Present ---
+const buildPath = path.join(__dirname, '../frontend/build');
+if (fs.existsSync(buildPath)) {
+    // Serve static assets from the React build directory
+    app.use(express.static(buildPath));
 
-    // For any request that doesn't match an API route, send back React's index.html file.
-    // This is the key for single-page applications to work with client-side routing.
+    // For any request that doesn't match an API route, send back React's index.html file
     app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+        res.sendFile(path.join(buildPath, 'index.html'));
+    });
+} else {
+    // Helpful root route when no frontend build is present
+    app.get('/', (req, res) => {
+        res.status(200).send(`Backend is running. Frontend build not found at ${buildPath}`);
     });
 }
 
