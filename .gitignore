@@ -4,7 +4,7 @@
 /backend/node_modules
 
 # Build artifacts
-/frontend/build
+#/frontend/build
 
 # Logs
 *.log
